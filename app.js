@@ -37,11 +37,7 @@ server = http.createServer(app).listen(app.get('port'), function(){
 });
 io = io.listen(server);
 
-// console.log(io);
-
 io.sockets.on('connection', function(socket) {
-  // socket.emit('news', {hello: 'world'});
-  socket.broadcast.emit('new', {count: 1});
   socket.on('send', function(data){
     socket.broadcast.emit('get', {chat: data.chat});
   });

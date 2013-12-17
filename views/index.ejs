@@ -6,7 +6,6 @@
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
-    <div id="count">1</div>
     <ul id="chats">
 
     </ul>
@@ -27,14 +26,7 @@
         document.getElementById('chats').appendChild(li);
         socket.emit('send', {chat: input.value})
         input.value = "";
-      })
-      var count_div = document.getElementById('count');
-      socket.on('new', function(data){
-
-        var c = parseInt(count_div.innerHTML);
-        c = c + data.count;
-        count_div.innerHTML = c;
-      })
+      });
     </script>
   </body>
 </html>
