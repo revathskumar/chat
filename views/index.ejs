@@ -3,9 +3,38 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <div id="count">1</div>
+    <ul id="chats">
+
+    </ul>
+    <input type="text" id="chat_input" />
+    <button id="send">Send</button>
+    <script>
+      var socket = io.connect('http://localhost');
+      socket.on('get', function (data) {
+        console.log('hello');
+        var li = document.createElement('li');
+        li.innerHTML = data.chat;
+        document.getElementById('chats').appendChild(li);
+      });
+      var input = document.getElementById('chat_input');
+      document.getElementById('send').addEventListener('click', function(){
+        var li = document.createElement('li');
+        li.innerHTML = input.value;
+        document.getElementById('chats').appendChild(li);
+        socket.emit('send', {chat: input.value})
+        input.value = "";
+      })
+      var count_div = document.getElementById('count');
+      socket.on('new', function(data){
+
+        var c = parseInt(count_div.innerHTML);
+        c = c + data.count;
+        count_div.innerHTML = c;
+      })
+    </script>
   </body>
 </html>
