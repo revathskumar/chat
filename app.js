@@ -41,16 +41,26 @@ server = http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 io = io.listen(server);
-
+var sockets = {};
 io.sockets.on('connection', function(socket) {
   socket.on('send', function(data){
     var chatCollection = db.get('chats');
-    chatCollection.insert({text: data.chat}, function(err, doc){
+    chatCollection.insert({text: data.chat, to: data.to}, function(err, doc){
       if(err){
         console.log(err);
       }else{
-        socket.broadcast.emit('get', {chat: data.chat});
+        sockets[data.to].emit('get', {chat: data.chat});
       }
     });
+  });
+
+  socket.on('new user', function(data){
+    sockets[data.name] = socket;
+    console.log(data);
+    socket.broadcast.emit('user list update', {name: data.name});
+  });
+
+  socket.on('disconnect', function () {
+    socket.broadcast.emit('remove user', {id: this.id});
   });
 });
