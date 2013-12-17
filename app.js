@@ -9,6 +9,11 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
+var mongo = require('mongodb');
+var monk = require('monk');
+
+db = monk('localhost/chats');
+
 var app = express();
 var io = require('socket.io');
 // all environments
@@ -39,6 +44,13 @@ io = io.listen(server);
 
 io.sockets.on('connection', function(socket) {
   socket.on('send', function(data){
-    socket.broadcast.emit('get', {chat: data.chat});
+    var chatCollection = db.get('chats');
+    chatCollection.insert({text: data.chat}, function(err, doc){
+      if(err){
+        console.log(err);
+      }else{
+        socket.broadcast.emit('get', {chat: data.chat});
+      }
+    });
   });
 });
