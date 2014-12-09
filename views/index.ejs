@@ -3,7 +3,6 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script src="/socket.io/socket.io.js"></script>
     <style >
       #users {
         border: 1px solid black;
@@ -35,47 +34,19 @@
     </ul>
     <input type="text" id="chat_input" />
     <button id="send">Send</button>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/helpers.js"></script>
+    <script src="/javascripts/users_list.js"></script>
+    <script src="/javascripts/chat.js"></script>
     <script>
-      var wrap_li = function(value){
-        var li = document.createElement('li');
-        li.innerHTML = value;
-        return li;
-      }
       var socket = io.connect('http://localhost');
-      socket.on('get', function (data) {
-        document.getElementById('chats').appendChild(wrap_li(data.chat));
-      });
-      var input = document.getElementById('chat_input');
-      document.getElementById('send').addEventListener('click', function(){
-        document.getElementById('chats').appendChild(wrap_li(input.value));
-        socket.emit('send', {chat: input.value})
-        input.value = "";
-      });
+      var chat_wrapper = document.getElementById('chats')
+      Chat.start({el: chat_wrapper});
 
       // Handling User list
       var users_wrapper = document.getElementById('users').getElementsByTagName('ul')[0];
-      var username_input = users_wrapper.getElementsByTagName('input')[0]
-      var username_button = users_wrapper.getElementsByTagName('button')[0]
-      username_button.addEventListener('click', function(e){
-        var name = username_input.value
-        li = wrap_li(name)
-        li.className = 'me'
-        users_wrapper.appendChild(li);
-        username_input.value = "";
-        users_wrapper.removeChild(users_wrapper.children[0])
-        socket.emit('new user', {name: name})
-      });
-
-      socket.on('remove user', function (data) {
-        console.log(data);
-      });
-
-      socket.on('user list update', function (data) {
-        console.log(data);
-        users_wrapper.appendChild(wrap_li(data.name));
-      });
-
-
+      UserList.start({el: users_wrapper});
     </script>
+
   </body>
 </html>
