@@ -44,23 +44,41 @@ io = io.listen(server);
 var sockets = {};
 io.sockets.on('connection', function(socket) {
   socket.on('send', function(data){
-    var chatCollection = db.get('chats');
-    chatCollection.insert({text: data.chat, to: data.to}, function(err, doc){
-      if(err){
+    var chats = db.get('chats');
+    users = db.get('users');
+    users.findOne({sid: this.id})
+      .success(function(doc){
+        chats.insert({text: data.chat, to: data.to, from_name: doc['name'], from_id: doc['sid']}, function(err, doc){
+          if(err){
+            console.log(err);
+          }else{
+            // sockets[data.to].emit('get', {chat: data.chat});
+            socket.broadcast.emit('get', {chat: data.chat, from: doc['from_name']});
+          }
+        });
+      });
+  });
+
+  socket.on('new user', function(data){
+    users = db.get('users');
+    users.insert({sid: this.id, name: data.name}, function(err, doc){
+      if (err) {
         console.log(err);
-      }else{
-        sockets[data.to].emit('get', {chat: data.chat});
+      }
+      else {
+        console.log('user created');
+        sockets[this.id] = socket;
+        socket.broadcast.emit('user list update', {name: data.name, id: this.id});
       }
     });
   });
 
-  socket.on('new user', function(data){
-    sockets[data.name] = socket;
-    console.log(data);
-    socket.broadcast.emit('user list update', {name: data.name});
-  });
-
   socket.on('disconnect', function () {
-    socket.broadcast.emit('remove user', {id: this.id});
+    users = db.get('users');
+    users.remove({sid: this.id})
+      .on('success', function(){
+        console.log('user deleted');
+        socket.broadcast.emit('remove user', {id: this.id});
+      });
   });
 });
