@@ -20,22 +20,21 @@ var UserList = (function() {
   var add = function (e) {
     console.log('In add');
     // debugger;
-    var name = username_input.value
-    var li = Helpers.wrap_li(name);
+    var name = username_input.value;
+    var li = Helpers.wrap_li({name: name});
     li.className = 'me';
-    users_wrapper.appendChild(li);
+    _el.appendChild(li);
     username_input.value = "";
-    users_wrapper.removeChild(users_wrapper.children[0]);
+    _el.removeChild(_el.children[0]);
     socket.emit('new user', {name: name});
   };
 
   var append = function (data) {
-    _el.appendChild(Helpers.wrap_li(data.name));
+    _el.appendChild(Helpers.wrap_li(data));
   };
 
   return {
-    start: init,
-    add: append
+    start: init
   }
 
 })();

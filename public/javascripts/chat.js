@@ -13,13 +13,13 @@ var Chat = (function() {
   };
 
   var addChat = function(e) {
-    _el.appendChild(Helpers.wrap_li(input.value));
+    _el.appendChild(Helpers.wrap_li(" me: " + input.value));
     socket.emit('send', {chat: input.value})
     input.value = "";
   };
 
   var add = function(data) {
-    _el.appendChild(Helpers.wrap_li(data.chat));
+    _el.appendChild(Helpers.wrap_li( data.from + ": " + data.chat));
   };
 
   return {
